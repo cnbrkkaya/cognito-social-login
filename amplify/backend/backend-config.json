@@ -1,1 +1,10 @@
-{}
+{
+	"auth": {
+		"sociallogin53da777e": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"dependsOn": [],
+			"customAuth": false
+		}
+	}
+}
