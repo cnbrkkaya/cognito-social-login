@@ -1,16 +1,20 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
+
 import App from './App'
+import App2 from './App2'
+import App3 from './App3'
 import reportWebVitals from './reportWebVitals'
 import Amplify from 'aws-amplify'
 import aws_exports from './aws-exports'
+import { UserContextProvider } from './contexts/userContext'
 Amplify.configure(aws_exports)
 
 ReactDOM.render(
-  <React.StrictMode>
+  <UserContextProvider>
     <App />
-  </React.StrictMode>,
+  </UserContextProvider>,
   document.getElementById('root')
 )
 

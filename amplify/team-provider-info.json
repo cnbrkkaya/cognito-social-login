@@ -13,7 +13,15 @@
         },
         "categories": {
             "auth": {
-                "sociallogin53da777e": {}
+                "sociallogin4b3f98ba": {
+                    "hostedUIProviderCreds": "[{\"ProviderName\":\"Facebook\",\"client_id\":\"395069148497119\",\"client_secret\":\"7694402010599cfc6c89ac207e0ff6b8\"}]",
+                    "facebookAppId": "395069148497119"
+                }
+            },
+            "function": {
+                "sociallogin4b3f98baPostConfirmation": {
+                    "GROUP": "everyone"
+                }
             }
         }
     }
