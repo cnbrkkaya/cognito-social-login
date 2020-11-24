@@ -15,14 +15,17 @@ export const UserContextProvider = (props) => {
   const [formState, updateFormState] = useState(initialFormState)
 
   useEffect(() => {
+    console.log('UseEffect ici')
     Hub.listen('auth', ({ payload: { event, data } }) => {
+      console.log('HUB ici')
       switch (event) {
         case 'signIn':
         case 'cognitoHostedUI':
-          getUser().then((userData) => setUser(userData))
+          checkUser()
           break
         case 'signOut':
-          deneme()
+          updateFormState(() => ({ ...formState, formType: 'signIn' }))
+          setUser(null)
           break
         case 'signIn_failure':
         case 'cognitoHostedUI_failure':
@@ -32,19 +35,32 @@ export const UserContextProvider = (props) => {
           return
       }
     })
+
+    checkUser()
   }, [])
-  function getUser() {
-    return Auth.currentAuthenticatedUser()
-      .then((userData) => userData)
-      .catch(() => console.log('Not signed in'))
+
+  async function checkUser() {
+    try {
+      const user = await Auth.currentAuthenticatedUser()
+      setUser(user)
+      console.log('user', user)
+      updateFormState(() => ({ ...formState, formType: 'signedIn' }))
+    } catch (error) {
+      //updateUser(null)
+    }
   }
-  async function deneme() {
-    setUser(null)
-    updateFormState(() => ({ ...formState, formType: 'signIn' }))
-  }
+
   return (
-    <UserContext.Provider value={{ user, setUser, formState, updateFormState }}>
+    <UserContext.Provider value={{ user, setUser, updateFormState, formState }}>
       {props.children}
     </UserContext.Provider>
   )
 }
+
+// function getUser() {
+//   return Auth.currentAuthenticatedUser()
+//     .then((userData) => userData)
+//     .catch(() => console.log('Not signed in'))
+// }
+
+// getUser().then((userData) => setUser(userData))

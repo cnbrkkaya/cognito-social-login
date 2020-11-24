@@ -5,86 +5,33 @@ import { Auth, Hub } from 'aws-amplify'
 import { UserContext } from './contexts/userContext'
 
 function App() {
-  const context = useContext(UserContext)
-
-  useEffect(() => {
-    checkUser()
-  }, [])
-
-  async function checkUser() {
-    try {
-      const user = await Auth.currentAuthenticatedUser()
-      context.setUser(user)
-
-      context.updateFormState(() => ({
-        ...context.formState,
-        formType: 'signedIn',
-      }))
-    } catch (error) {
-      //updateUser(null)
-    }
-  }
-
-  // async function setAuthListener() {
-  //   Hub.listen('auth', (data) => {
-  //     switch (data.payload.event) {
-  //       case 'signIn':
-  //         console.log('user signed in')
-  //         break
-  //       case 'signUp':
-  //         console.log('user signed up')
-  //         break
-  //       case 'signOut':
-  //         updateFormState(() => ({ ...formState, formType: 'signIn' }))
-  //         break
-  //       // case 'signIn_failure':
-  //       //   console.log('user sign in failed')
-  //       //   break
-  //       // case 'configured':
-  //       //   console.log('the Auth module is configured')
-  //       default:
-  //         return
-  //     }
-  //   })
-  // }
+  const { updateFormState, formState, user, setUser } = useContext(UserContext)
 
   const onChange = (e) => {
     e.persist()
-    context.updateFormState(() => ({
-      ...context.formState,
-      [e.target.name]: e.target.value,
-    }))
-    // console.log(formState)
+    updateFormState(() => ({ ...formState, [e.target.name]: e.target.value }))
+    console.log(formState)
   }
-  const { formType } = context.formState
-
+  const { formType } = formState
   async function signUp() {
-    const { username, email, password } = context.formState
+    const { username, email, password } = formState
     await Auth.signUp({ username, password, attributes: { email } })
-    context.updateFormState(() => ({
-      ...context.formState,
-      formType: 'confirmSignUp',
-    }))
+    updateFormState(() => ({ ...formState, formType: 'confirmSignUp' }))
   }
   async function confirmSignUp() {
-    const { username, authCode } = context.formState
+    const { username, authCode } = formState
     await Auth.confirmSignUp(username, authCode)
-    context.updateFormState(() => ({
-      ...context.formState,
-      formType: 'signIn',
-    }))
+    updateFormState(() => ({ ...formState, formType: 'signIn' }))
   }
   async function signIn() {
-    const { username, password } = context.formState
+    const { username, password } = formState
     await Auth.signIn({ username, password })
-    context.updateFormState(() => ({
-      ...context.formState,
-      formType: 'signedIn',
-    }))
-    checkUser()
+    const tempUser = await Auth.currentAuthenticatedUser()
+    setUser(tempUser)
+    updateFormState(() => ({ ...formState, formType: 'signedIn' }))
   }
-  console.log(context.user)
-  console.log(context.formState.formType)
+  console.log(user)
+  console.log(formState.formType)
 
   return (
     <div>
@@ -106,8 +53,8 @@ function App() {
           <button onClick={signUp}>Sign Up</button>
           <button
             onClick={() =>
-              context.updateFormState(() => ({
-                ...context.formState,
+              updateFormState(() => ({
+                ...formState,
                 formType: 'signIn',
               }))
             }
@@ -136,8 +83,8 @@ function App() {
           <button onClick={signIn}>Sign In</button>
           <button
             onClick={() =>
-              context.updateFormState(() => ({
-                ...context.formState,
+              updateFormState(() => ({
+                ...formState,
                 formType: 'signUp',
               }))
             }
@@ -148,8 +95,14 @@ function App() {
       )}
       {formType === 'signedIn' && (
         <div>
-          Hello {context.user.username}
-          <button onClick={async () => await Auth.signOut()}>Sign Out</button>
+          Hello {user.username}
+          <button
+            onClick={() => {
+              Auth.signOut()
+            }}
+          >
+            Sign Out
+          </button>
         </div>
       )}
     </div>
